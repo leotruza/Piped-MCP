@@ -84,7 +84,7 @@ If no healthy instance is available, verify outbound HTTPS and retry after the p
 
 ### License
 
-MIT. See `LICENSE`.
+No software license is included.
 
 ---
 
@@ -146,4 +146,4 @@ Execute `pytest -q`. Os testes cobrem análise Markdown, duplicatas, URLs invál
 
 ### Licença
 
-MIT. Consulte `LICENSE`.
+Nenhuma licença de software está incluída.
