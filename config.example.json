@@ -1,0 +1,9 @@
+{
+  "listen_host": "127.0.0.1",
+  "listen_port": 8083,
+  "instance_list_url": "https://raw.githubusercontent.com/TeamPiped/documentation/main/content/docs/public-instances/index.md",
+  "frontend_url": "https://piped.video",
+  "instance_refresh_minutes": 30,
+  "health_check_minutes": 5,
+  "request_timeout_seconds": 10
+}
