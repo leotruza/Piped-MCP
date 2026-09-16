@@ -83,7 +83,7 @@ If no healthy instance is available, verify outbound HTTPS and retry after the p
 
 ### License
 
-No software license is included.
+This project is licensed under the GNU General Public License version 3.0. See `LICENSE`.
 
 ---
 
@@ -145,4 +145,4 @@ Execute `pytest -q`. Os testes cobrem análise Markdown, duplicatas, URLs invál
 
 ### Licença
 
-Nenhuma licença de software está incluída.
+Este projeto está licenciado sob a GNU General Public License versão 3.0. Consulte `LICENSE`.
