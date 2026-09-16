@@ -7,9 +7,18 @@ from .models import Config, InstanceState, NoHealthyInstances
 log = logging.getLogger(__name__)
 URL_RE = re.compile(r"https?://[^\s|<>]+", re.I)
 
-def parse_instances(markdown: str) -> list[tuple[str, bool]]:
+def derive_frontend_url(api_url: str) -> str:
+    parsed = urlparse(api_url)
+    host = parsed.netloc
+    for prefix in ("pipedapi-libre.", "pipedapi.", "piped-api.", "api.piped.", "api."):
+        if host.startswith(prefix):
+            host = host[len(prefix):]
+            break
+    return f"https://{host}"
+
+def parse_instances(markdown: str) -> list[tuple[str, bool, str]]:
     """Parse API URLs from TeamPiped's Markdown table, preserving CDN flags."""
-    found: dict[str, bool] = {}
+    found: dict[str, tuple[bool, str]] = {}
     for line in markdown.splitlines():
         if "http" not in line.lower() or line.lstrip().startswith("<!--"):
             continue
@@ -25,8 +34,9 @@ def parse_instances(markdown: str) -> list[tuple[str, bool]]:
             # The table can contain frontend links; API rows are identified by api.
             if any(token in (parsed.path + parsed.netloc).lower() for token in ("pipedapi", "api")):
                 base = f"{parsed.scheme}://{parsed.netloc}{parsed.path.rstrip('/')}"
-                found[base] = found.get(base, False) or is_cdn
-    return list(found.items())
+                old_cdn, frontend = found.get(base, (False, derive_frontend_url(base)))
+                found[base] = (old_cdn or is_cdn, frontend)
+    return [(url, cdn, frontend) for url, (cdn, frontend) in found.items()]
 
 class InstanceManager:
     def __init__(self, config: Config, transport=None):
@@ -35,12 +45,12 @@ class InstanceManager:
         self.last_list_refresh: float | None = None
 
     def load_markdown(self, markdown: str) -> int:
-        for url, cdn in parse_instances(markdown):
+        for url, cdn, frontend in parse_instances(markdown):
             existing = self.instances.get(url)
             if existing:
                 existing.cdn = existing.cdn or cdn
             else:
-                self.instances[url] = InstanceState(url=url, cdn=cdn)
+                self.instances[url] = InstanceState(url=url, cdn=cdn, frontend=frontend)
         self.last_list_refresh = time.time()
         log.info("Loaded %d public instances", len(self.instances))
         return len(self.instances)

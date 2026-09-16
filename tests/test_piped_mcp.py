@@ -23,7 +23,7 @@ def config(): return Config(request_timeout_seconds=1)
 
 def test_parse_instances_deduplicates_and_marks_cdn():
     md = """| API | CDN |\n| https://pipedapi.one | yes |\n| https://pipedapi.one/ | yes |\n| https://pipedapi.two | no |\n| https://piped.video | no |"""
-    assert parse_instances(md) == [("https://pipedapi.one", True), ("https://pipedapi.two", False)]
+    assert parse_instances(md) == [("https://pipedapi.one", True, "https://one"), ("https://pipedapi.two", False, "https://two")]
 
 def test_invalid_instances_ignored():
     assert parse_instances("http://api.example\nnot-a-url\nhttps://example.com") == []
@@ -60,7 +60,7 @@ def test_playback_url_encoding(config):
     manager.instances["https://pipedapi.example/path"].healthy = True
     url = PipedClient(config, manager).playback_url("abc", autoplay=True, listen=True, quality=1080)
     query = parse_qs(urlparse(url).query)
-    assert url.startswith("https://piped.video/watch?") and query["v"] == ["abc"] and query["instance"] == ["https://pipedapi.example/path"]
+    assert url.startswith("https://example/watch?") and query["v"] == ["abc"] and query["instance"] == ["https://pipedapi.example/path"]
     assert query["playerAutoPlay"] == ["true"] and query["quality"] == ["1080"]
 
 def test_config_from_env(monkeypatch):

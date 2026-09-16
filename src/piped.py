@@ -11,12 +11,13 @@ class PipedClient:
         self._cache: dict[tuple, tuple[float, object]] = {}
 
     def playback_url(self, video_id: str, *, autoplay: bool = False, listen: bool = False, quality: int | None = None, sponsorblock: bool | None = None) -> str:
-        params = {"v": video_id, "instance": self.manager.select().url}
+        selected = self.manager.select()
+        params = {"v": video_id, "instance": selected.url}
         if autoplay: params["playerAutoPlay"] = "true"
         if listen: params["listen"] = "true"
         if quality is not None: params["quality"] = str(quality)
         if sponsorblock is not None: params["sponsorblock"] = "true" if sponsorblock else "false"
-        return f"{self.config.frontend_url}/watch?{urlencode(params)}"
+        return f"{selected.frontend}/watch?{urlencode(params)}"
 
     async def search(self, query: str, filter: str = "videos", limit: int = 10) -> list[dict]:
         limit = max(1, min(limit, 50)); key = ("search", query, filter, limit)

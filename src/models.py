@@ -39,6 +39,7 @@ class Config:
 @dataclass
 class InstanceState:
     url: str
+    frontend: str = ""
     cdn: bool = False
     healthy: bool = False
     latency_ms: float | None = None
