@@ -2,6 +2,15 @@ import { NoHealthyInstances } from './config.js';
 
 const URL_RE = /https?:\/\/[^\s|<>]+/gi;
 
+export function deriveFrontendUrl(apiUrl) {
+  const parsed = new URL(apiUrl);
+  let host = parsed.hostname;
+  for (const prefix of ['pipedapi-libre.', 'pipedapi.', 'piped-api.', 'api.piped.', 'api.']) {
+    if (host.startsWith(prefix)) { host = host.slice(prefix.length); break; }
+  }
+  return `https://${host}`;
+}
+
 export function parseInstances(markdown) {
   const found = new Map();
   for (const line of markdown.split(/\r?\n/)) {
@@ -14,10 +23,10 @@ export function parseInstances(markdown) {
       if (parsed.protocol !== 'https:' || /registered\/badge/i.test(parsed.pathname)) continue;
       if (!/(pipedapi|api)/i.test(parsed.hostname + parsed.pathname)) continue;
       const base = `${parsed.origin}${parsed.pathname.replace(/\/$/, '')}`;
-      found.set(base, (found.get(base) ?? false) || isCdn);
+      found.set(base, { cdn: (found.get(base)?.cdn ?? false) || isCdn, frontend: deriveFrontendUrl(base) });
     }
   }
-  return [...found].map(([url, cdn]) => ({ url, cdn }));
+  return [...found].map(([url, metadata]) => ({ url, ...metadata }));
 }
 
 export class InstanceManager {
@@ -25,9 +34,9 @@ export class InstanceManager {
     this.config = config; this.fetch = fetchImpl; this.instances = new Map(); this.lastListRefresh = null;
   }
   loadMarkdown(markdown) {
-    for (const { url, cdn } of parseInstances(markdown)) {
+    for (const { url, cdn, frontend } of parseInstances(markdown)) {
       const old = this.instances.get(url);
-      this.instances.set(url, old ? { ...old, cdn: old.cdn || cdn } : { url, cdn, healthy: false, latencyMs: null, failureCount: 0, consecutiveFailures: 0, lastSuccess: null, lastHealthCheck: null });
+      this.instances.set(url, old ? { ...old, cdn: old.cdn || cdn, frontend: old.frontend || frontend } : { url, frontend, cdn, healthy: false, latencyMs: null, failureCount: 0, consecutiveFailures: 0, lastSuccess: null, lastHealthCheck: null });
     }
     this.lastListRefresh = Date.now();
     console.info(`[INFO] Loaded ${this.instances.size} public instances`);

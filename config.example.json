@@ -3,7 +3,6 @@
   "port": 8083,
   "transport": "stdio",
   "instanceListUrl": "https://raw.githubusercontent.com/TeamPiped/documentation/main/content/docs/public-instances/index.md",
-  "frontendUrl": "https://piped.video",
   "instanceRefreshMinutes": 30,
   "healthCheckMinutes": 5,
   "timeoutSeconds": 10
