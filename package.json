@@ -1,0 +1,17 @@
+{
+  "name": "youtube-piped-mcp",
+  "version": "1.0.0",
+  "description": "Standalone YouTube MCP server backed by dynamically discovered Piped instances",
+  "type": "module",
+  "private": true,
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test",
+    "check": "node --check src/server.js && node --check src/instances.js && node --check src/piped.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "zod": "^3.25.76"
+  }
+}

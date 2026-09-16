@@ -1,90 +1,72 @@
-# YouTube MCP
+# YouTube MCP — Node.js
 
 ## English
 
 ### Overview
 
-YouTube MCP is a standalone [Model Context Protocol](https://modelcontextprotocol.io/) server that provides a small, structured interface to YouTube through the open Piped API. It does not access `youtube.com` directly, does not require an official YouTube API key, and does not control a browser.
+This branch is a Node.js remake of the standalone YouTube MCP server. It provides structured access to YouTube through Piped without directly interacting with `youtube.com`, without an official YouTube API key, and without controlling a browser.
 
 > **AI-generated software disclaimer**
 >
 > This project was fully created with the assistance of artificial intelligence (AI), including its source code, documentation, configuration, and project structure. It has been reviewed and tested to the extent described in this repository, but users should independently review the code and verify that it meets their security, reliability, and legal requirements.
 
-### Features and architecture
+### Architecture and features
 
-The server downloads TeamPiped's official public-instance Markdown list at runtime, parses and deduplicates API endpoints, performs health checks, and keeps an in-memory pool with latency, CDN status, failure counts, and timestamps. Requests are sent to the best healthy public instance, with automatic failover when a backend fails. Playback URLs always use the `https://piped.video` frontend and include the selected API endpoint as the URL-encoded `instance` parameter.
+The server dynamically downloads TeamPiped's official public-instance list, parses and deduplicates API URLs, health-checks them, prefers healthy CDN instances with low latency and few failures, and automatically fails over when a backend fails. It keeps state and caches in memory. Playback URLs use the `https://piped.video` frontend and a correctly encoded `instance` parameter.
 
-The MCP boundary ends at returning a URL. An external browser automation system may open that URL, but this project contains no Playwright, Selenium, CDP, browser profile, or browser-launching dependency.
+The project uses the official `@modelcontextprotocol/sdk` JavaScript SDK. Browser automation is outside the MCP boundary: there are no Playwright, Selenium, CDP, browser profiles, or browser-launching dependencies.
 
 ### Requirements and installation
 
-Python 3.10 or newer is recommended. Install dependencies in a virtual environment:
+Node.js 20 or newer is recommended:
 
 ```bash
-python -m venv .venv
-. .venv/bin/activate
-pip install -r requirements.txt
+npm install
 ```
 
-### Configuration and running
+### Running and configuration
 
-Copy `config.example.json` for reference, then configure with environment variables when needed:
+Run the default local stdio server:
+
+```bash
+npm start
+```
+
+Environment variables:
 
 | Variable | Default |
 |---|---|
 | `YOUTUBE_MCP_HOST` | `127.0.0.1` |
 | `YOUTUBE_MCP_PORT` | `8083` |
+| `YOUTUBE_MCP_TRANSPORT` | `stdio` |
 | `YOUTUBE_MCP_INSTANCE_LIST_URL` | TeamPiped official raw Markdown URL |
 | `YOUTUBE_MCP_FRONTEND_URL` | `https://piped.video` |
 | `YOUTUBE_MCP_INSTANCE_REFRESH_MINUTES` | `30` |
 | `YOUTUBE_MCP_HEALTH_CHECK_MINUTES` | `5` |
 | `YOUTUBE_MCP_TIMEOUT_SECONDS` | `10` |
 
-Run it as an MCP stdio server:
-
-```bash
-python -m src.server
-```
-
-The default transport is MCP stdio for local clients. To expose Streamable HTTP on the configured host and port, set `YOUTUBE_MCP_TRANSPORT=streamable-http`; `sse` is also supported by the MCP SDK. The default bind values are `127.0.0.1:8083`.
+For Streamable HTTP, use `YOUTUBE_MCP_TRANSPORT=streamable-http`; the MCP endpoint is `/mcp`. The default configuration intentionally binds locally.
 
 ### MCP tools
 
-* `youtube_search(query, filter="videos", limit=10)` returns concise title, video ID, channel, duration, views, publication date, thumbnail, and type fields.
-* `youtube_video(video_id)` retrieves metadata plus normalized video and audio stream information from `/streams/{video_id}`.
-* `youtube_play(video_id, autoplay=false, listen=false, quality=null, sponsorblock=null)` returns a browser-ready URL only. It never launches or controls a browser.
+* `youtube_search(query, filter, limit)` searches through Piped and returns concise result metadata.
+* `youtube_video(video_id)` retrieves metadata and normalized video/audio streams from `/streams/{video_id}`.
+* `youtube_play(video_id, autoplay, listen, quality, sponsorblock)` returns a browser-ready URL and never launches a browser.
 
-Example result URL:
-
-```text
-https://piped.video/watch?v=VIDEO_ID&instance=https%3A%2F%2Fpipedapi.example
-```
-
-### Public instances, health, and failover
-
-TeamPiped's official list is the source of truth and is refreshed on startup and at the configured interval by the hosting process. A health check uses `/search?q=test&filter=all`, requiring a successful HTTP response, valid JSON, and an `items` array. Instances that fail are marked degraded and excluded from selection until a later health check succeeds. Healthy CDN instances and low-latency, low-failure instances are preferred. Public instances can disappear or rate-limit requests; temporary failures are returned as retryable structured errors.
-
-### Security and scope
-
-The server has no credentials, cookies, tokens, filesystem tools, shell tools, arbitrary command execution, or YouTube account access. It requires outbound HTTPS only to the TeamPiped list, public Piped APIs, and the Piped frontend. Review public-instance privacy and reliability characteristics before production use.
+Errors are returned as structured MCP error content with `error` and `retryable` fields. Temporary backend failures are retryable; unavailable videos are non-retryable when the backend returns HTTP 404.
 
 ### Development and testing
 
-Run the mocked test suite with:
-
 ```bash
-pytest -q
+npm test
+npm run check
 ```
 
-Tests cover Markdown parsing, deduplication, invalid URLs, health checks, CDN-aware selection, failover, search/video/stream normalization, URL encoding, and configuration. A live integration check should be performed in an environment with outbound HTTPS before relying on public instances in production.
+The tests use mocked HTTP responses and cover TeamPiped parsing, deduplication, invalid entries, health checks, CDN-aware selection, failover, search/video/stream normalization, URL encoding, and configuration. Before production use, perform a live integration check in an environment with outbound HTTPS. Public Piped instances can become unavailable or rate-limit requests.
 
-### Troubleshooting
+### Security and scope
 
-If no healthy instance is available, verify outbound HTTPS and retry after the public-instance pool refreshes. If a video is unavailable, the server returns a non-retryable `Video not found` error where the backend provides a 404. If a Piped instance is temporarily down, the client marks it failed, tries another healthy instance, and returns a retryable error only when all candidates fail.
-
-### License
-
-No software license is included.
+No credentials, cookies, tokens, arbitrary shell execution, filesystem tools, or YouTube account access are included. The application only needs outbound HTTPS to the TeamPiped list, public Piped APIs, and the Piped frontend. No software license is included in this repository.
 
 ---
 
@@ -92,58 +74,48 @@ No software license is included.
 
 ### Visão geral
 
-O YouTube MCP é um servidor independente do [Model Context Protocol](https://modelcontextprotocol.io/) que oferece uma interface estruturada e pequena para o YouTube por meio da API aberta do Piped. Ele não acessa `youtube.com` diretamente, não exige uma chave da API oficial do YouTube e não controla navegadores.
+Esta branch é uma reimplementação em Node.js do servidor MCP independente para YouTube. Ela oferece acesso estruturado ao YouTube por meio do Piped sem interagir diretamente com `youtube.com`, sem chave oficial da API do YouTube e sem controlar um navegador.
 
 > **Aviso sobre software gerado por IA**
 >
 > Este projeto foi criado integralmente com o auxílio de inteligência artificial (IA), incluindo o código-fonte, a documentação, as configurações e a estrutura do projeto. O projeto foi revisado e testado conforme descrito neste repositório, mas os usuários devem analisar o código por conta própria e verificar se ele atende aos seus requisitos de segurança, confiabilidade e aspectos legais.
 
-### Recursos e arquitetura
+### Arquitetura e recursos
 
-O servidor baixa em tempo de execução a lista oficial de instâncias públicas do TeamPiped em Markdown, analisa e remove endpoints duplicados, executa verificações de saúde e mantém um conjunto em memória com status de CDN, latência, falhas e horários. As solicitações usam automaticamente a melhor instância saudável, com failover quando um backend falha. Os links de reprodução sempre usam o frontend `https://piped.video` e incluem o endpoint da API selecionado no parâmetro `instance`, codificado corretamente.
+O servidor baixa dinamicamente a lista oficial de instâncias públicas do TeamPiped, analisa e remove URLs duplicadas, verifica a saúde, prefere instâncias CDN saudáveis com baixa latência e poucas falhas e executa failover automático quando um backend falha. O estado e os caches ficam em memória. Os links de reprodução usam o frontend `https://piped.video` e um parâmetro `instance` corretamente codificado.
 
-O limite do MCP termina ao retornar um link. Um sistema externo de automação de navegador pode abrir esse link, mas este projeto não contém Playwright, Selenium, CDP, perfis de navegador ou dependências para iniciar navegadores.
+O projeto usa o SDK oficial `@modelcontextprotocol/sdk` para JavaScript. A automação de navegador fica fora do limite do MCP: não há Playwright, Selenium, CDP, perfis de navegador ou dependências para iniciar navegadores.
 
 ### Requisitos e instalação
 
-Recomenda-se Python 3.10 ou mais recente. Instale as dependências em um ambiente virtual:
+Recomenda-se Node.js 20 ou mais recente:
 
 ```bash
-python -m venv .venv
-. .venv/bin/activate
-pip install -r requirements.txt
+npm install
 ```
 
-### Configuração e execução
+### Execução e configuração
 
-Consulte `config.example.json` e use variáveis de ambiente quando necessário: `YOUTUBE_MCP_HOST`, `YOUTUBE_MCP_PORT`, `YOUTUBE_MCP_INSTANCE_LIST_URL`, `YOUTUBE_MCP_FRONTEND_URL`, `YOUTUBE_MCP_INSTANCE_REFRESH_MINUTES`, `YOUTUBE_MCP_HEALTH_CHECK_MINUTES` e `YOUTUBE_MCP_TIMEOUT_SECONDS`. Os padrões são, respectivamente, `127.0.0.1`, `8083`, a lista oficial do TeamPiped, `https://piped.video`, 30 minutos, 5 minutos e 10 segundos.
-
-Execute-o como servidor MCP via stdio:
+Execute o servidor local stdio padrão:
 
 ```bash
-python -m src.server
+npm start
 ```
 
-O transporte padrão é stdio para clientes MCP locais. Para expor Streamable HTTP no host e porta configurados, defina `YOUTUBE_MCP_TRANSPORT=streamable-http`; `sse` também é suportado pelo SDK MCP. O padrão é `127.0.0.1:8083`.
+As variáveis de ambiente são equivalentes às listadas na seção em inglês: host `127.0.0.1`, porta `8083`, transporte `stdio`, lista oficial do TeamPiped, frontend `https://piped.video`, atualização da lista em 30 minutos, verificação de saúde em 5 minutos e timeout de 10 segundos. Para Streamable HTTP, use `YOUTUBE_MCP_TRANSPORT=streamable-http`; o endpoint MCP é `/mcp`.
 
 ### Ferramentas MCP
 
-* `youtube_search(query, filter="videos", limit=10)` retorna título, ID do vídeo, canal, duração, visualizações, data de publicação, miniatura e tipo.
-* `youtube_video(video_id)` retorna metadados e informações normalizadas dos streams de vídeo e áudio usando `/streams/{video_id}`.
-* `youtube_play(video_id, autoplay=false, listen=false, quality=null, sponsorblock=null)` retorna somente um link pronto para o navegador. Nunca inicia nem controla um navegador.
+* `youtube_search(query, filter, limit)` pesquisa por meio do Piped e retorna metadados concisos.
+* `youtube_video(video_id)` retorna metadados e streams de vídeo/áudio normalizados usando `/streams/{video_id}`.
+* `youtube_play(video_id, autoplay, listen, quality, sponsorblock)` retorna um link pronto para o navegador e nunca abre um navegador.
 
-### Instâncias públicas, saúde e failover
+Erros são retornados como conteúdo MCP estruturado com os campos `error` e `retryable`. Falhas temporárias do backend permitem nova tentativa; vídeos indisponíveis são não recuperáveis quando o backend retorna HTTP 404.
 
-A lista oficial do TeamPiped é a fonte de verdade e é atualizada no início e no intervalo configurado pelo processo hospedeiro. A verificação usa `/search?q=test&filter=all` e exige HTTP bem-sucedido, JSON válido e uma lista `items`. Instâncias que falham são marcadas como degradadas e excluídas até uma verificação posterior bem-sucedida. Instâncias CDN saudáveis e com baixa latência e poucas falhas têm preferência. Instâncias públicas podem ficar indisponíveis ou limitar requisições; falhas temporárias são retornadas como erros estruturados que permitem nova tentativa.
+### Desenvolvimento e testes
+
+Use `npm test` e `npm run check`. Os testes usam respostas HTTP simuladas e cobrem análise TeamPiped, duplicatas, entradas inválidas, saúde, seleção CDN, failover, normalização de busca/vídeo/streams, codificação de URLs e configuração. Antes de usar em produção, faça um teste de integração ao vivo em um ambiente com HTTPS de saída. Instâncias públicas do Piped podem ficar indisponíveis ou limitar requisições.
 
 ### Segurança e escopo
 
-O servidor não possui credenciais, cookies, tokens, ferramentas de arquivos ou shell, execução arbitrária, nem acesso a contas do YouTube. Ele precisa somente de HTTPS de saída para a lista TeamPiped, APIs públicas do Piped e o frontend do Piped. Avalie privacidade e confiabilidade das instâncias públicas antes de uso em produção.
-
-### Desenvolvimento, testes e solução de problemas
-
-Execute `pytest -q`. Os testes cobrem análise Markdown, duplicatas, URLs inválidas, saúde, seleção CDN, failover, normalização de busca/vídeo/streams, codificação de URLs e configuração. Antes de usar em produção, faça também um teste de integração ao vivo em um ambiente com HTTPS de saída. Se nenhuma instância saudável estiver disponível, verifique a conectividade e aguarde a atualização do pool. Vídeos indisponíveis retornam `Video not found` sem nova tentativa quando o backend fornece HTTP 404; falhas temporárias tentam outra instância e só retornam erro recuperável quando todas falham.
-
-### Licença
-
-Nenhuma licença de software está incluída.
+Não há credenciais, cookies, tokens, execução arbitrária de shell, ferramentas de arquivos ou acesso a contas do YouTube. O aplicativo precisa somente de HTTPS de saída para a lista TeamPiped, APIs públicas do Piped e frontend do Piped. Nenhuma licença de software está incluída neste repositório.
