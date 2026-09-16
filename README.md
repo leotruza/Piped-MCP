@@ -65,7 +65,7 @@ The tests use mocked HTTP responses and cover TeamPiped parsing, deduplication, 
 
 ### Security and scope
 
-No credentials, cookies, tokens, arbitrary shell execution, filesystem tools, or YouTube account access are included. The application only needs outbound HTTPS to the TeamPiped list, public Piped APIs, and the Piped frontend. No software license is included in this repository.
+No credentials, cookies, tokens, arbitrary shell execution, filesystem tools, or YouTube account access are included. The application only needs outbound HTTPS to the TeamPiped list, public Piped APIs, and the Piped frontend. This project is licensed under the GNU General Public License version 3.0. See `LICENSE`.
 
 ---
 
@@ -117,4 +117,4 @@ Use `npm test` e `npm run check`. Os testes usam respostas HTTP simuladas e cobr
 
 ### Segurança e escopo
 
-Não há credenciais, cookies, tokens, execução arbitrária de shell, ferramentas de arquivos ou acesso a contas do YouTube. O aplicativo precisa somente de HTTPS de saída para a lista TeamPiped, APIs públicas do Piped e frontend do Piped. Nenhuma licença de software está incluída neste repositório.
+Não há credenciais, cookies, tokens, execução arbitrária de shell, ferramentas de arquivos ou acesso a contas do YouTube. O aplicativo precisa somente de HTTPS de saída para a lista TeamPiped, APIs públicas do Piped e frontend do Piped. Este projeto está licenciado sob a GNU General Public License versão 3.0. Consulte `LICENSE`.
