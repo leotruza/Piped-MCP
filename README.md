@@ -46,7 +46,7 @@ Run it as an MCP stdio server:
 python -m src.server
 ```
 
-The default bind values are retained for compatibility with local MCP clients. The current implementation uses MCP stdio transport; the configured host/port are available for deployments that wrap the process in an HTTP transport.
+The default transport is MCP stdio for local clients. To expose Streamable HTTP on the configured host and port, set `YOUTUBE_MCP_TRANSPORT=streamable-http`; `sse` is also supported by the MCP SDK. The default bind values are `127.0.0.1:8083`.
 
 ### MCP tools
 
@@ -124,7 +124,7 @@ Execute-o como servidor MCP via stdio:
 python -m src.server
 ```
 
-Os valores padrão de host e porta são mantidos para compatibilidade com clientes MCP locais. A implementação atual usa transporte stdio; os valores configurados podem ser usados por um wrapper que forneça transporte HTTP.
+O transporte padrão é stdio para clientes MCP locais. Para expor Streamable HTTP no host e porta configurados, defina `YOUTUBE_MCP_TRANSPORT=streamable-http`; `sse` também é suportado pelo SDK MCP. O padrão é `127.0.0.1:8083`.
 
 ### Ferramentas MCP
 

@@ -1,6 +1,6 @@
 """Standalone MCP server exposing YouTube search, video details, and playback URLs."""
 from __future__ import annotations
-import asyncio, logging
+import asyncio, logging, os
 from .instances import InstanceManager
 from .models import Config, PipedError
 from .piped import PipedClient
@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 config = Config.from_env()
 manager = InstanceManager(config)
 client = PipedClient(config, manager)
-mcp = FastMCP("youtube-piped")
+mcp = FastMCP("youtube-piped", host=config.listen_host, port=config.listen_port)
 
 @mcp.tool()
 async def youtube_search(query: str, filter: str = "videos", limit: int = 10) -> dict:
@@ -45,6 +45,10 @@ async def initialize() -> None:
 async def main() -> None:
     try: await initialize()
     except Exception as exc: logging.warning("Initial instance discovery failed: %s", exc)
-    await mcp.run_stdio_async()
+    transport = os.getenv("YOUTUBE_MCP_TRANSPORT", "stdio")
+    if transport == "stdio":
+        await mcp.run_stdio_async()
+    else:
+        mcp.run(transport=transport)
 
 if __name__ == "__main__": asyncio.run(main())
