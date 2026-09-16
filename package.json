@@ -3,7 +3,19 @@
   "version": "1.0.0",
   "description": "Standalone YouTube MCP server backed by dynamically discovered Piped instances",
   "type": "module",
-  "private": true,
+  "license": "GPL-3.0-only",
+  "author": "leotruza",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leotruza/Piped-MCP.git",
+    "directory": "."
+  },
+  "homepage": "https://github.com/leotruza/Piped-MCP/tree/node-rewrite#readme",
+  "bugs": { "url": "https://github.com/leotruza/Piped-MCP/issues" },
+  "keywords": ["mcp", "model-context-protocol", "youtube", "piped", "server"],
+  "main": "src/server.js",
+  "exports": { ".": "./src/server.js" },
+  "files": ["src", "README.md", "LICENSE", "config.example.json"],
   "engines": { "node": ">=20" },
   "scripts": {
     "start": "node src/server.js",
