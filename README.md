@@ -46,14 +46,6 @@ Environment variables:
 
 For Streamable HTTP, use `YOUTUBE_MCP_TRANSPORT=streamable-http`; the MCP endpoint is `/mcp`. The default configuration intentionally binds locally.
 
-On Windows, the included PowerShell launcher starts MCPO and the Node.js MCP server together:
-
-```powershell
-.\start-mcp.ps1 -NodePath "C:\Program Files\nodejs\node.exe" -McpoPath "C:\path\to\mcpo.exe"
-```
-
-The launcher uses the directory containing the script to locate `src\server.js`, validates the executables, and keeps the MCPO process attached to the console. Use `-ServerPath` when the server file is elsewhere.
-
 ### MCP tools
 
 * `youtube_search(query, filter, limit)` searches through Piped and returns concise result metadata.
@@ -110,8 +102,6 @@ npm start
 ```
 
 As variáveis de ambiente são equivalentes às listadas na seção em inglês: host `127.0.0.1`, porta `8083`, transporte `stdio`, lista oficial do TeamPiped, atualização da lista em 30 minutos, verificação de saúde em 5 minutos e timeout de 10 segundos. O link de reprodução usa o frontend oficial `https://piped.video`, com a API selecionada no parâmetro `instance`. Para Streamable HTTP, use `YOUTUBE_MCP_TRANSPORT=streamable-http`; o endpoint MCP é `/mcp`.
-
-No Windows, o script `start-mcp.ps1` inicia o MCPO e o servidor Node.js juntos. Exemplo: `.\start-mcp.ps1 -NodePath "C:\Program Files\nodejs\node.exe" -McpoPath "C:\caminho\para\mcpo.exe"`.
 
 ### Ferramentas MCP
 
