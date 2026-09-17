@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { loadConfig, PipedError } from './config.js';
 import { InstanceManager } from './instances.js';
 import { PipedClient } from './piped.js';
+const log = (...args) => console.error(...args);
 const VIDEO_ID = /^[A-Za-z0-9_-]{11}$/;
 const FILTERS = ['all','videos','channels','playlists','music_songs','music_videos','music_albums','music_playlists','music_artists'];
 export function createApp(config = loadConfig(), fetchImpl = fetch) {
@@ -17,13 +18,13 @@ export function createApp(config = loadConfig(), fetchImpl = fetch) {
   server.tool('youtube_play', 'Generate a browser-ready Piped URL without launching a browser.', { video_id: z.string().regex(VIDEO_ID, 'video_id must be an 11-character YouTube video ID'), autoplay: z.boolean().default(false), listen: z.boolean().default(false), quality: z.number().int().optional(), sponsorblock: z.boolean().optional() }, async ({ video_id, ...options }) => { try { return { content: [{ type: 'text', text: JSON.stringify({ url: client.playbackUrl(video_id, options) }) }] }; } catch (e) { return errorResult(e); } });
   return { server, manager, client };
 }
-export async function initialize(manager) { try { await manager.refresh(); await manager.healthCheckAll(); } catch (error) { console.warn(`[WARN] Initial instance discovery failed: ${error.message}`); } }
-async function refreshLoop(manager, config) { while (true) { try { await manager.refresh(); await manager.healthCheckAll(); } catch (e) { console.warn(`[WARN] Instance refresh failed: ${e.message}`); } await new Promise(resolve => setTimeout(resolve, config.instanceRefreshMinutes * 60_000)); } }
-async function healthLoop(manager, config) { while (true) { await new Promise(resolve => setTimeout(resolve, config.healthCheckMinutes * 60_000)); try { await manager.healthCheckAll(); } catch (e) { console.warn(`[WARN] Health refresh failed: ${e.message}`); } } }
+export async function initialize(manager) { try { await manager.refresh(); await manager.healthCheckAll(); } catch (error) { log(`[WARN] Initial instance discovery failed: ${error.message}`); } }
+async function refreshLoop(manager, config) { while (true) { try { await manager.refresh(); await manager.healthCheckAll(); } catch (e) { log(`[WARN] Instance refresh failed: ${e.message}`); } await new Promise(resolve => setTimeout(resolve, config.instanceRefreshMinutes * 60_000)); } }
+async function healthLoop(manager, config) { while (true) { await new Promise(resolve => setTimeout(resolve, config.healthCheckMinutes * 60_000)); try { await manager.healthCheckAll(); } catch (e) { log(`[WARN] Health refresh failed: ${e.message}`); } } }
 async function main() {
   const config = loadConfig(); const { server, manager } = createApp(config); const tasks = [refreshLoop(manager, config), healthLoop(manager, config)];
   if (config.transport === 'stdio') { await server.connect(new StdioServerTransport()); await new Promise(() => {}); return; }
-  if (config.transport === 'streamable-http') { const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined }); await server.connect(transport); const httpServer = createServer(async (req, res) => { if (req.url !== '/mcp') { res.writeHead(404); return res.end('Not found'); } await transport.handleRequest(req, res); }); httpServer.listen(config.port, config.host, () => console.info(`[INFO] MCP HTTP listening on ${config.host}:${config.port}/mcp`)); await new Promise(() => {}); return; }
+  if (config.transport === 'streamable-http') { const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined }); await server.connect(transport); const httpServer = createServer(async (req, res) => { if (req.url !== '/mcp') { res.writeHead(404); return res.end('Not found'); } await transport.handleRequest(req, res); }); httpServer.listen(config.port, config.host, () => log(`[INFO] MCP HTTP listening on ${config.host}:${config.port}/mcp`)); await new Promise(() => {}); return; }
   throw new Error(`Unsupported transport: ${config.transport}`);
 }
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) main().catch(error => { console.error(error); process.exit(1); });
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) main().catch(error => { log(error); process.exit(1); });

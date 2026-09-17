@@ -1,5 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { fileURLToPath } from 'node:url';
 import { loadConfig } from '../src/config.js';
 import { parseInstances, InstanceManager } from '../src/instances.js';
 import { PipedClient } from '../src/piped.js';
@@ -13,3 +16,9 @@ test('health checks and prefers CDN', async () => { const fetcher = fakeFetch({ 
 test('fails over and normalizes search results', async () => { const fetcher = fakeFetch({ 'https://pipedapi.one/search': new Response({ items: [] }), 'https://pipedapi.two/search': new Response({ items: [{ type: 'stream', url: '/watch?v=abc', title: 'A', uploaderName: 'C' }] }) }); const manager = new InstanceManager(config(), fetcher); manager.loadMarkdown(TABLE); await manager.healthCheckAll(); manager.fetch = async url => { if (String(url).startsWith('https://pipedapi.one/search')) throw new Error('down'); return fetcher(url); }; assert.equal((await new PipedClient(config(), manager).search('runit'))[0].video_id, 'abc'); });
 test('uses piped.video with encoded API instance', () => { const manager = new InstanceManager(config(), fakeFetch({})); manager.loadMarkdown(TABLE); manager.instances.get('https://pipedapi.one').healthy = true; const parsed = new URL(new PipedClient(config(), manager).playbackUrl('abcdefghijk', { autoplay: true })); assert.equal(parsed.hostname, 'piped.video'); assert.equal(parsed.searchParams.get('instance'), 'https://pipedapi.one'); assert.equal(parsed.searchParams.get('playerAutoPlay'), 'true'); });
 test('loads configuration and uses documented transport defaults', () => { const result = loadConfig({ YOUTUBE_MCP_PORT: '9000', YOUTUBE_MCP_TRANSPORT: 'stdio' }); assert.equal(result.port, 9000); assert.equal(result.transport, 'stdio'); });
+test('completes an MCP stdio handshake without stdout diagnostics', async () => {
+  const client = new Client({ name: 'stdio-regression-test', version: '1.0.0' });
+  const transport = new StdioClientTransport({ command: process.execPath, args: [fileURLToPath(new URL('../src/server.js', import.meta.url))], env: { ...process.env, YOUTUBE_MCP_TRANSPORT: 'stdio', YOUTUBE_MCP_TIMEOUT_SECONDS: '1', YOUTUBE_MCP_INSTANCE_REFRESH_MINUTES: '60', YOUTUBE_MCP_HEALTH_CHECK_MINUTES: '60' } });
+  try { await client.connect(transport); const tools = await client.listTools(); assert.deepEqual(tools.tools.map(tool => tool.name).sort(), ['youtube_play', 'youtube_search', 'youtube_video']); }
+  finally { await transport.close(); }
+});
