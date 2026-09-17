@@ -7,7 +7,7 @@ export class PipedClient {
     const params = new URLSearchParams({ v: videoId, instance: selected.url });
     if (autoplay) params.set('playerAutoPlay', 'true'); if (listen) params.set('listen', 'true');
     if (quality !== undefined) params.set('quality', String(quality)); if (sponsorblock !== undefined) params.set('sponsorblock', String(Boolean(sponsorblock)));
-    return `${selected.frontend}/watch?${params}`;
+    return `${this.config.frontendUrl}/watch?${params}`;
   }
   async search(query, filter = 'videos', limit = 10) {
     limit = Math.max(1, Math.min(50, limit)); const key = `search:${query}:${filter}:${limit}`; const cached = this.get(key, this.config.searchCacheSeconds); if (cached) return cached;
