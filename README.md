@@ -4,7 +4,7 @@
 
 ### Overview
 
-This branch is a Node.js remake of the standalone YouTube MCP server. It provides structured access to YouTube through Piped without directly interacting with `youtube.com`, without an official YouTube API key, and without controlling a browser.
+This is the maintained Node.js implementation of the standalone YouTube MCP server. The previous Python implementation is preserved in the `archive/python` branch. It provides structured access to YouTube through Piped without directly interacting with `youtube.com`, without an official YouTube API key, and without controlling a browser.
 
 > **AI-generated software disclaimer**
 >
@@ -46,6 +46,14 @@ Environment variables:
 
 For Streamable HTTP, use `YOUTUBE_MCP_TRANSPORT=streamable-http`; the MCP endpoint is `/mcp`. The default configuration intentionally binds locally.
 
+On Windows, the included PowerShell launcher starts MCPO and the Node.js MCP server together:
+
+```powershell
+.\start-mcp.ps1 -NodePath "C:\Program Files\nodejs\node.exe" -McpoPath "C:\path\to\mcpo.exe"
+```
+
+The launcher uses the directory containing the script to locate `src\server.js`, validates the executables, and keeps the MCPO process attached to the console. Use `-ServerPath` when the server file is elsewhere.
+
 ### MCP tools
 
 * `youtube_search(query, filter, limit)` searches through Piped and returns concise result metadata.
@@ -73,7 +81,7 @@ No credentials, cookies, tokens, arbitrary shell execution, filesystem tools, or
 
 ### Visão geral
 
-Esta branch é uma reimplementação em Node.js do servidor MCP independente para YouTube. Ela oferece acesso estruturado ao YouTube por meio do Piped sem interagir diretamente com `youtube.com`, sem chave oficial da API do YouTube e sem controlar um navegador.
+Esta é a implementação mantida em Node.js do servidor MCP independente para YouTube. A implementação anterior em Python está preservada na branch `archive/python`. Ela oferece acesso estruturado ao YouTube por meio do Piped sem interagir diretamente com `youtube.com`, sem chave oficial da API do YouTube e sem controlar um navegador.
 
 > **Aviso sobre software gerado por IA**
 >
@@ -101,7 +109,9 @@ Execute o servidor local stdio padrão:
 npm start
 ```
 
-As variáveis de ambiente são equivalentes às listadas na seção em inglês: host `127.0.0.1`, porta `8083`, transporte `stdio`, lista oficial do TeamPiped, atualização da lista em 30 minutos, verificação de saúde em 5 minutos e timeout de 10 segundos. O link de reprodução usa o frontend hospedado pela instância selecionada. Para Streamable HTTP, use `YOUTUBE_MCP_TRANSPORT=streamable-http`; o endpoint MCP é `/mcp`.
+As variáveis de ambiente são equivalentes às listadas na seção em inglês: host `127.0.0.1`, porta `8083`, transporte `stdio`, lista oficial do TeamPiped, atualização da lista em 30 minutos, verificação de saúde em 5 minutos e timeout de 10 segundos. O link de reprodução usa o frontend oficial `https://piped.video`, com a API selecionada no parâmetro `instance`. Para Streamable HTTP, use `YOUTUBE_MCP_TRANSPORT=streamable-http`; o endpoint MCP é `/mcp`.
+
+No Windows, o script `start-mcp.ps1` inicia o MCPO e o servidor Node.js juntos. Exemplo: `.\start-mcp.ps1 -NodePath "C:\Program Files\nodejs\node.exe" -McpoPath "C:\caminho\para\mcpo.exe"`.
 
 ### Ferramentas MCP
 
