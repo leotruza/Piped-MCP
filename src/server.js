@@ -18,8 +18,8 @@ export function createApp(config = loadConfig(), fetchImpl = fetch) {
   return { server, manager, client };
 }
 export async function initialize(manager) { try { await manager.refresh(); await manager.healthCheckAll(); } catch (error) { console.warn(`[WARN] Initial instance discovery failed: ${error.message}`); } }
-async function refreshLoop(manager, config) { while (true) { try { await manager.refresh(); } catch (e) { console.warn(`[WARN] Instance refresh failed: ${e.message}`); } await new Promise(resolve => setTimeout(resolve, config.instanceRefreshMinutes * 60_000)); } }
-async function healthLoop(manager, config) { while (true) { try { await manager.healthCheckAll(); } catch (e) { console.warn(`[WARN] Health refresh failed: ${e.message}`); } await new Promise(resolve => setTimeout(resolve, config.healthCheckMinutes * 60_000)); } }
+async function refreshLoop(manager, config) { while (true) { try { await manager.refresh(); await manager.healthCheckAll(); } catch (e) { console.warn(`[WARN] Instance refresh failed: ${e.message}`); } await new Promise(resolve => setTimeout(resolve, config.instanceRefreshMinutes * 60_000)); } }
+async function healthLoop(manager, config) { while (true) { await new Promise(resolve => setTimeout(resolve, config.healthCheckMinutes * 60_000)); try { await manager.healthCheckAll(); } catch (e) { console.warn(`[WARN] Health refresh failed: ${e.message}`); } } }
 async function main() {
   const config = loadConfig(); const { server, manager } = createApp(config); const tasks = [refreshLoop(manager, config), healthLoop(manager, config)];
   if (config.transport === 'stdio') { await server.connect(new StdioServerTransport()); await new Promise(() => {}); return; }
