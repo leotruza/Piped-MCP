@@ -23,6 +23,11 @@ test('normalizes Invidious search and video responses', async () => {
   const fetcher = async url => String(url).includes('/search?') ? new Response([{ type: 'video', title: 'A', videoId: 'abcdefghijk', author: 'C', lengthSeconds: 12 }]) : new Response({ title: 'A', videoId: 'abcdefghijk', author: 'C', lengthSeconds: 12, formatStreams: [{ itag: '18', qualityLabel: '360p', type: 'video/mp4', url: 'https://video' }] });
   const client = new InvidiousClient(cfg, fetcher); assert.equal((await client.search('test'))[0].video_id, 'abcdefghijk'); assert.equal((await client.video('abcdefghijk')).streams.video[0].quality, '360p');
 });
+test('checks Invidious instances through the stats endpoint', async () => {
+  const cfg = { ...config(), invidiousInstances: ['https://invidious.one', 'https://invidious.two'] };
+  const client = new InvidiousClient(cfg, async url => String(url).includes('invidious.one') ? new Response({ software: { name: 'invidious' } }) : new Response({ error: 'down' }, 503));
+  assert.equal(await client.healthCheckAll(), 1); assert.equal(client.health.get('https://invidious.one'), true); assert.equal(client.health.get('https://invidious.two'), false);
+});
 test('completes an MCP stdio handshake without stdout diagnostics', async () => {
   const client = new Client({ name: 'stdio-regression-test', version: '1.0.0' });
   const transport = new StdioClientTransport({ command: process.execPath, args: [fileURLToPath(new URL('../src/server.js', import.meta.url))], env: { ...process.env, YOUTUBE_MCP_TRANSPORT: 'stdio', YOUTUBE_MCP_TIMEOUT_SECONDS: '1', YOUTUBE_MCP_INSTANCE_REFRESH_MINUTES: '60', YOUTUBE_MCP_HEALTH_CHECK_MINUTES: '60' } });

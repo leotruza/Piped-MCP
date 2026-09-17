@@ -21,10 +21,10 @@ export function createApp(config = loadConfig(), fetchImpl = fetch) {
   return { server, manager, client, invidious };
 }
 export async function initialize(manager) { try { await manager.refresh(); await manager.healthCheckAll(); } catch (error) { log(`[WARN] Initial instance discovery failed: ${error.message}`); } }
-async function refreshLoop(manager, config) { while (true) { try { await manager.refresh(); await manager.healthCheckAll(); } catch (e) { log(`[WARN] Instance refresh failed: ${e.message}`); } await new Promise(resolve => setTimeout(resolve, config.instanceRefreshMinutes * 60_000)); } }
-async function healthLoop(manager, config) { while (true) { await new Promise(resolve => setTimeout(resolve, config.healthCheckMinutes * 60_000)); try { await manager.healthCheckAll(); } catch (e) { log(`[WARN] Health refresh failed: ${e.message}`); } } }
+async function refreshLoop(manager, invidious, config) { while (true) { try { await manager.refresh(); await manager.healthCheckAll(); await invidious.healthCheckAll(); } catch (e) { log(`[WARN] Instance refresh failed: ${e.message}`); } await new Promise(resolve => setTimeout(resolve, config.instanceRefreshMinutes * 60_000)); } }
+async function healthLoop(manager, invidious, config) { while (true) { await new Promise(resolve => setTimeout(resolve, config.healthCheckMinutes * 60_000)); try { await manager.healthCheckAll(); await invidious.healthCheckAll(); } catch (e) { log(`[WARN] Health refresh failed: ${e.message}`); } } }
 async function main() {
-  const config = loadConfig(); const { server, manager } = createApp(config); const tasks = [refreshLoop(manager, config), healthLoop(manager, config)];
+  const config = loadConfig(); const { server, manager, invidious } = createApp(config); const tasks = [refreshLoop(manager, invidious, config), healthLoop(manager, invidious, config)];
   if (config.transport === 'stdio') { await server.connect(new StdioServerTransport()); await new Promise(() => {}); return; }
   if (config.transport === 'streamable-http') { const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined }); await server.connect(transport); const httpServer = createServer(async (req, res) => { if (req.url !== '/mcp') { res.writeHead(404); return res.end('Not found'); } await transport.handleRequest(req, res); }); httpServer.listen(config.port, config.host, () => log(`[INFO] MCP HTTP listening on ${config.host}:${config.port}/mcp`)); await new Promise(() => {}); return; }
   throw new Error(`Unsupported transport: ${config.transport}`);
