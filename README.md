@@ -47,7 +47,7 @@ Environment variables:
 
 For Streamable HTTP, use `YOUTUBE_MCP_TRANSPORT=streamable-http`; the MCP endpoint is `/mcp`. The default configuration intentionally binds locally.
 
-Invidious fallback is enabled by default using the official public-instance list. Set `YOUTUBE_MCP_INVIDIOUS_INSTANCES` to one or more comma-separated Invidious base URLs to override it, or set it to an empty string to disable the fallback. Piped remains the primary backend; Invidious is tried only when Piped has no usable instance. Invidious public instances are independent services and may have different availability or privacy policies.
+Invidious fallback is enabled by default using the five HTTPS clearnet instances currently listed in the [official Invidious instance documentation](https://docs.invidious.io/instances/): `inv.nadeko.net`, `invidious.nerdvpn.de`, `yt.chocolatemoo53.com`, `invidious.tiekoetter.com`, and `invidious.f5.si`. Set `YOUTUBE_MCP_INVIDIOUS_INSTANCES` to one or more comma-separated Invidious base URLs to override the list, or set it to an empty string to disable the fallback. Piped remains the primary backend; Invidious is tried only when Piped has no usable instance. Invidious public instances are independent services and may have different availability or privacy policies.
 
 ### MCP tools
 
@@ -106,7 +106,7 @@ npm start
 
 As variáveis de ambiente são equivalentes às listadas na seção em inglês: host `127.0.0.1`, porta `8083`, transporte `stdio`, lista oficial do TeamPiped, fallback Invidious habilitado por padrão, atualização da lista em 30 minutos, verificação de saúde em 5 minutos e timeout de 30 segundos. O link de reprodução usa o frontend oficial `https://piped.video`, com a API selecionada no parâmetro `instance`. Para Streamable HTTP, use `YOUTUBE_MCP_TRANSPORT=streamable-http`; o endpoint MCP é `/mcp`.
 
-A compatibilidade com Invidious é habilitada por padrão usando a lista oficial de instâncias públicas. Defina `YOUTUBE_MCP_INVIDIOUS_INSTANCES` com uma ou mais URLs base separadas por vírgula para substituí-la, ou use uma string vazia para desabilitar o fallback. O Piped continua sendo o backend principal; o Invidious só é usado quando nenhuma instância Piped está disponível.
+A compatibilidade com Invidious é habilitada por padrão usando as cinco instâncias HTTPS clearnet listadas atualmente na [documentação oficial de instâncias do Invidious](https://docs.invidious.io/instances/): `inv.nadeko.net`, `invidious.nerdvpn.de`, `yt.chocolatemoo53.com`, `invidious.tiekoetter.com` e `invidious.f5.si`. Defina `YOUTUBE_MCP_INVIDIOUS_INSTANCES` com uma ou mais URLs base separadas por vírgula para substituí-las, ou use uma string vazia para desabilitar o fallback. O Piped continua sendo o backend principal; o Invidious só é usado quando nenhuma instância Piped está disponível.
 
 ### Ferramentas MCP
 
