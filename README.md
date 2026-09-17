@@ -12,7 +12,7 @@ This branch is a Node.js remake of the standalone YouTube MCP server. It provide
 
 ### Architecture and features
 
-The server dynamically downloads TeamPiped's official public-instance list, parses and deduplicates API URLs, derives the hosted frontend for each listed instance, health-checks them, prefers healthy CDN instances with low latency and few failures, and automatically fails over when a backend fails. It keeps state and caches in memory. Playback URLs use the selected instance's hosted frontend and a correctly encoded `instance` parameter.
+The server dynamically downloads TeamPiped's official public-instance list, parses and deduplicates API URLs, health-checks each listed API instance, health-checks them, prefers healthy CDN instances with low latency and few failures, and automatically fails over when a backend fails. It keeps state and caches in memory. Playback URLs use the official `https://piped.video` frontend and a correctly encoded `instance` parameter.
 
 The project uses the official `@modelcontextprotocol/sdk` JavaScript SDK. Browser automation is outside the MCP boundary: there are no Playwright, Selenium, CDP, browser profiles, or browser-launching dependencies.
 
