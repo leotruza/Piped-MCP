@@ -12,7 +12,7 @@ YouTube MCP is a standalone [Model Context Protocol](https://modelcontextprotoco
 
 ### Features and architecture
 
-The server downloads TeamPiped's official public-instance Markdown list at runtime, parses and deduplicates API endpoints, derives each instance's hosted frontend, performs health checks, and keeps an in-memory pool with latency, CDN status, failure counts, and timestamps. Requests are sent to the best healthy public instance, with automatic failover when a backend fails. Playback URLs use the selected instance's hosted frontend and include its API endpoint as the URL-encoded `instance` parameter.
+The server downloads TeamPiped's official public-instance Markdown list at runtime, parses and deduplicates API endpoints, derives each instance's hosted frontend, performs health checks, and keeps an in-memory pool with latency, CDN status, failure counts, and timestamps. Requests are sent to the best healthy public instance, with automatic failover when a backend fails. Playback URLs use the official `https://piped.video` frontend and include its API endpoint as the URL-encoded `instance` parameter.
 
 The MCP boundary ends at returning a URL. An external browser automation system may open that URL, but this project contains no Playwright, Selenium, CDP, browser profile, or browser-launching dependency.
 
@@ -99,7 +99,7 @@ O YouTube MCP é um servidor independente do [Model Context Protocol](https://mo
 
 ### Recursos e arquitetura
 
-O servidor baixa em tempo de execução a lista oficial de instâncias públicas do TeamPiped em Markdown, analisa e remove endpoints duplicados, deriva o frontend hospedado de cada instância, executa verificações de saúde e mantém um conjunto em memória com status de CDN, latência, falhas e horários. As solicitações usam automaticamente a melhor instância saudável, com failover quando um backend falha. Os links de reprodução usam o frontend hospedado pela instância selecionada e incluem o endpoint da API no parâmetro `instance`, codificado corretamente.
+O servidor baixa em tempo de execução a lista oficial de instâncias públicas do TeamPiped em Markdown, analisa e remove endpoints duplicados, verifica a saúde de cada instância de API, executa verificações de saúde e mantém um conjunto em memória com status de CDN, latência, falhas e horários. As solicitações usam automaticamente a melhor instância saudável, com failover quando um backend falha. Os links de reprodução usam o frontend oficial `https://piped.video` e incluem o endpoint da API no parâmetro `instance`, codificado corretamente.
 
 O limite do MCP termina ao retornar um link. Um sistema externo de automação de navegador pode abrir esse link, mas este projeto não contém Playwright, Selenium, CDP, perfis de navegador ou dependências para iniciar navegadores.
 
@@ -115,7 +115,7 @@ pip install -r requirements.txt
 
 ### Configuração e execução
 
-Consulte `config.example.json` e use variáveis de ambiente quando necessário: `YOUTUBE_MCP_HOST`, `YOUTUBE_MCP_PORT`, `YOUTUBE_MCP_INSTANCE_LIST_URL`, `YOUTUBE_MCP_INSTANCE_REFRESH_MINUTES`, `YOUTUBE_MCP_HEALTH_CHECK_MINUTES` e `YOUTUBE_MCP_TIMEOUT_SECONDS`. Os padrões são `127.0.0.1`, `8083`, a lista oficial do TeamPiped, 30 minutos, 5 minutos e 10 segundos. O frontend de reprodução é o frontend hospedado pela instância selecionada.
+Consulte `config.example.json` e use variáveis de ambiente quando necessário: `YOUTUBE_MCP_HOST`, `YOUTUBE_MCP_PORT`, `YOUTUBE_MCP_INSTANCE_LIST_URL`, `YOUTUBE_MCP_INSTANCE_REFRESH_MINUTES`, `YOUTUBE_MCP_HEALTH_CHECK_MINUTES` e `YOUTUBE_MCP_TIMEOUT_SECONDS`. Os padrões são `127.0.0.1`, `8083`, a lista oficial do TeamPiped, 30 minutos, 5 minutos e 10 segundos. O frontend de reprodução é o `https://piped.video`, com a API selecionada no parâmetro `instance`.
 
 Execute-o como servidor MCP via stdio:
 
