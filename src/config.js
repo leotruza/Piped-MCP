@@ -9,6 +9,7 @@ export function loadConfig(env = process.env) {
     transport: env.YOUTUBE_MCP_TRANSPORT ?? 'stdio',
     instanceListUrl: env.YOUTUBE_MCP_INSTANCE_LIST_URL ?? DEFAULT_INSTANCE_LIST_URL,
     frontendUrl: (env.YOUTUBE_MCP_FRONTEND_URL ?? DEFAULT_FRONTEND_URL).replace(/\/$/, ''),
+    invidiousInstances: (env.YOUTUBE_MCP_INVIDIOUS_INSTANCES ?? '').split(',').map(value => value.trim().replace(/\/$/, '')).filter(Boolean),
     instanceRefreshMinutes: number('YOUTUBE_MCP_INSTANCE_REFRESH_MINUTES', 30),
     healthCheckMinutes: number('YOUTUBE_MCP_HEALTH_CHECK_MINUTES', 5),
     timeoutSeconds: number('YOUTUBE_MCP_TIMEOUT_SECONDS', 30),
