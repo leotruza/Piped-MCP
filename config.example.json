@@ -5,5 +5,5 @@
   "instanceListUrl": "https://raw.githubusercontent.com/TeamPiped/documentation/main/content/docs/public-instances/index.md",
   "instanceRefreshMinutes": 30,
   "healthCheckMinutes": 5,
-  "timeoutSeconds": 10
+  "timeoutSeconds": 30
 }

@@ -11,7 +11,7 @@ export function loadConfig(env = process.env) {
     frontendUrl: (env.YOUTUBE_MCP_FRONTEND_URL ?? DEFAULT_FRONTEND_URL).replace(/\/$/, ''),
     instanceRefreshMinutes: number('YOUTUBE_MCP_INSTANCE_REFRESH_MINUTES', 30),
     healthCheckMinutes: number('YOUTUBE_MCP_HEALTH_CHECK_MINUTES', 5),
-    timeoutSeconds: number('YOUTUBE_MCP_TIMEOUT_SECONDS', 10),
+    timeoutSeconds: number('YOUTUBE_MCP_TIMEOUT_SECONDS', 30),
     searchCacheSeconds: number('YOUTUBE_MCP_SEARCH_CACHE_SECONDS', 45),
     videoCacheSeconds: number('YOUTUBE_MCP_VIDEO_CACHE_SECONDS', 300)
   };
