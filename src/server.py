@@ -33,12 +33,15 @@ async def youtube_play(video_id: str, autoplay=False, listen=False, quality=None
 
 async def _refresh_loop():
     while True:
-        try: await manager.refresh()
+        try:
+            await manager.refresh()
+            await manager.health_check_all()
         except Exception as exc: logging.warning("Instance refresh failed: %s", exc)
         await asyncio.sleep(config.instance_refresh_minutes * 60)
 
 async def _health_loop():
     while True:
+        await asyncio.sleep(config.health_check_minutes * 60)
         try: await manager.health_check_all()
         except Exception as exc: logging.warning("Health refresh failed: %s", exc)
         await asyncio.sleep(config.health_check_minutes * 60)
