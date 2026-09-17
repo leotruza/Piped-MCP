@@ -42,7 +42,7 @@ Environment variables:
 | `YOUTUBE_MCP_INSTANCE_LIST_URL` | TeamPiped official raw Markdown URL |
 | `YOUTUBE_MCP_INSTANCE_REFRESH_MINUTES` | `30` |
 | `YOUTUBE_MCP_HEALTH_CHECK_MINUTES` | `5` |
-| `YOUTUBE_MCP_TIMEOUT_SECONDS` | `10` |
+| `YOUTUBE_MCP_TIMEOUT_SECONDS` | `30` |
 
 For Streamable HTTP, use `YOUTUBE_MCP_TRANSPORT=streamable-http`; the MCP endpoint is `/mcp`. The default configuration intentionally binds locally.
 
@@ -101,7 +101,7 @@ Execute o servidor local stdio padrão:
 npm start
 ```
 
-As variáveis de ambiente são equivalentes às listadas na seção em inglês: host `127.0.0.1`, porta `8083`, transporte `stdio`, lista oficial do TeamPiped, atualização da lista em 30 minutos, verificação de saúde em 5 minutos e timeout de 10 segundos. O link de reprodução usa o frontend oficial `https://piped.video`, com a API selecionada no parâmetro `instance`. Para Streamable HTTP, use `YOUTUBE_MCP_TRANSPORT=streamable-http`; o endpoint MCP é `/mcp`.
+As variáveis de ambiente são equivalentes às listadas na seção em inglês: host `127.0.0.1`, porta `8083`, transporte `stdio`, lista oficial do TeamPiped, atualização da lista em 30 minutos, verificação de saúde em 5 minutos e timeout de 30 segundos. O link de reprodução usa o frontend oficial `https://piped.video`, com a API selecionada no parâmetro `instance`. Para Streamable HTTP, use `YOUTUBE_MCP_TRANSPORT=streamable-http`; o endpoint MCP é `/mcp`.
 
 ### Ferramentas MCP
 
